@@ -2,7 +2,8 @@
 
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { defaultViewport, fadeUp } from "@/lib/motion";
 
 const notes = [
   [
@@ -23,6 +24,8 @@ const notes = [
 ];
 
 export function EngineeringNotes() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Section className="bg-brand-highlight/5 border-y border-brand-highlight/10">
       <Container>
@@ -30,10 +33,14 @@ export function EngineeringNotes() {
           {notes.map((note, idx) => (
             <motion.div
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: idx * 0.15 }}
+              initial={fadeUp.initial}
+              whileInView={fadeUp.animate}
+              viewport={defaultViewport}
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0 }
+                  : { duration: 0.5, delay: idx * 0.15 }
+              }
               className="font-mono text-sm md:text-base leading-relaxed space-y-1 relative">
               <div className="absolute -top-4 -left-4 text-4xl text-brand-highlight/20 select-none font-sans">
                 &quot;

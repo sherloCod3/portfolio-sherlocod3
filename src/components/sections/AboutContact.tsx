@@ -2,9 +2,12 @@
 
 import { Section } from "@/components/ui/Section";
 import { Container } from "@/components/ui/Container";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { defaultViewport, fadeLeft, fadeRight } from "@/lib/motion";
 
 export function AboutContact() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Section
       id="about"
@@ -12,10 +15,12 @@ export function AboutContact() {
       <Container className="pb-16">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-8 items-end">
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            initial={fadeLeft.initial}
+            whileInView={fadeLeft.animate}
+            viewport={defaultViewport}
+            transition={
+              shouldReduceMotion ? { duration: 0 } : { duration: 0.6 }
+            }
             className="max-w-md space-y-8">
             <h2 className="text-2xl font-bold tracking-tight text-brand-text mb-6">
               About
@@ -32,10 +37,14 @@ export function AboutContact() {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={fadeRight.initial}
+            whileInView={fadeRight.animate}
+            viewport={defaultViewport}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.6, delay: 0.2 }
+            }
             className="md:text-right space-y-8">
             <h2 className="text-2xl font-bold tracking-tight text-brand-text mb-6">
               Contact
@@ -71,8 +80,10 @@ export function AboutContact() {
       <motion.footer
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1, delay: 0.5 }}
+        viewport={defaultViewport}
+        transition={
+          shouldReduceMotion ? { duration: 0 } : { duration: 1, delay: 0.5 }
+        }
         className="mt-16 py-8 border-t border-brand-text/5 text-center font-mono text-xs text-brand-text/40">
         SherloCod3 · Engineering Logbook · © {new Date().getFullYear()}{" "}
         Alexandre Cavalari

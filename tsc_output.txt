@@ -1,0 +1,6 @@
+src/components/sections/SelectedSystems.tsx(248,25): error TS2322: Type '{ duration: number; ease?: undefined; } | { duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+  Type '{ duration: number; ease: string; }' is not assignable to type 'Transition<any> | undefined'.
+    Type '{ duration: number; ease: string; }' is not assignable to type 'TransitionWithValueOverrides<any>'.
+      Type '{ duration: number; ease: string; }' is not assignable to type 'ValueAnimationTransition<any>'.
+        Types of property 'ease' are incompatible.
+          Type 'string' is not assignable to type 'Easing | Easing[] | undefined'.
