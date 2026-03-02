@@ -1,0 +1,42 @@
+[
+  {
+    "id": "log-1772477232893",
+    "date": "2026-03-02",
+    "tag": "Infra",
+    "context": "The reporting platform's generation engine was hitting a performance and security wall. Each PDF export triggered a fresh Chromium cold start—a 200MB memory penalty—while SQL validation was essentially optimistic string matching that wouldn't stop a determined intern, let alone an actual injection attempt.",
+    "decision": "Replaced one-off headless browser instantiation with a managed Puppeteer pool (min 1, max 5) and migrated long-running generation tasks to BullMQ workers backed by Redis. Simultaneously swapped regex-based SQL filtering for a proper AST-based parsing service.",
+    "why": "Naïve resource allocation is a debt trap. A 'spawn on demand' strategy for browsers is a death sentence for response times, and string-based whitelists are security theater. We needed warm instances for performance and a stateful queue to handle burst concurrency without nuking the event loop.",
+    "impact": "Eliminated ~200MB per-request startup latency; achieved zero zombie browser processes via SIGTERM lifecycle hooks; shifted from synchronous blocking to 100% asynchronous job polling.",
+    "note": "Architecture is the art of managing state you didn't want in the first place. If you aren't pooling your heavy processes and validating inputs at the syntax tree level, you aren't building a platform—you're just hosting a future post-mortem."
+  },
+  {
+    "id": "log-1772471256619",
+    "date": "2026-03-02",
+    "tag": "Frontend",
+    "context": "Initial frontend scaffold for a portfolio application was inherently lacking production-readiness. Essential structural components, accessibility considerations, and baseline technical hygiene were absent, creating an immediate need for foundational refinement post-boilerplate generation.",
+    "decision": "Implemented a fixed-position navigation component with dynamic visibility based on scroll state. Centralized animation definitions within a dedicated utility module (`lib/motion.ts`) to ensure global consistency and honor user reduced-motion preferences. Addressed critical TypeScript type mismatches, specifically pertaining to animation easing functions in key interactive components. Established fundamental SEO and OpenGraph metadata. Integrated CSS-only syntax highlighting for code blocks and client-side filtering capabilities for content sections.",
+    "why": "The initial framework provided insufficient primitives for a production-grade user interface. Strict typing enforcement was a prerequisite to mitigate runtime errors and maintain codebase predictability. Centralized animation logic was a direct response to future-proofing accessibility requirements. Leveraging CSS for syntax highlighting was a pragmatic choice to avoid unnecessary client-side JavaScript bloat and its associated performance overhead. Basic filtering was a direct UX requirement for content navigability.",
+    "impact": "Achieved a stable, type-safe frontend core. Eliminated a class of potential runtime errors stemming from inconsistent component contracts. Reduced initial page load overhead by offloading visual processing to native browser capabilities.",
+    "note": "Foundational engineering hygiene (type safety, accessibility, performance-minded rendering) must precede feature velocity. Deferring these concerns compounds future refactoring debt exponentially. Early structural integrity prevents later architectural decay."
+  },
+  {
+    "id": "log-sql-analytical-queries",
+    "date": "2026-02-12",
+    "tag": "SQL",
+    "context": "The reporting platform's data aggregation endpoints were bringing the database to its knees, causing frequent timeout errors on datasets larger than 500k rows. The ORM was generating predictably awful multi-join cartesian products out of the box.",
+    "decision": "Excised the ORM entirely for read-heavy analytical endpoints. Hand-wrote optimized raw SQL using Common Table Expressions (CTEs), implemented window functions for rolling averages, and added targeted composite indices on frequently filtered date boundaries.",
+    "why": "ORMs are fantastic for basic CRUD and terrible for analytics. Trying to coax an abstraction layer into writing optimal SQL for complex aggregations is a stubborn exercise in futility. Sometimes you just have to drop the training wheels and speak to the database in its native tongue.",
+    "impact": "Query execution time plummeted from 'maybe it finishes' (8-12 seconds) to a mathematically verifiable 150ms. CPU load on the database cluster dropped by 60% during peak operating hours.",
+    "note": "Abstractions are supposed to save you time, until they don't. The friction of writing raw SQL is trivial compared to the friction of a downed production database. Choose the right tool for the query."
+  },
+  {
+    "id": "log-async-webhook-ingestion",
+    "date": "2026-02-19",
+    "tag": "Async",
+    "context": "Webhook ingestion from external providers was tightly coupled to the main request lifecycle. A sudden traffic spike from a partner API would saturate the Node event loop, leading to dropped payloads, timeouts, and cascading failures across unrelated platform endpoints.",
+    "decision": "Decoupled ingestion from processing entirely. Implemented a Redis-backed BullMQ queue. The API now merely validates and acknowledges the webhook payload instantly, offloading the actual heavy business logic to asynchronous background workers with built-in retry mechanisms and exponential backoff.",
+    "why": "Synchronous processing of unpredictable third-party webhooks is a ticking time bomb. The system needed the capacity to absorb the shock of massive traffic spikes gracefully without punishing the end user. Eventual consistency isn't a compromise; it's the only scalable path forward.",
+    "impact": "Achieved 100% webhook ingestion success rate even during simulated 10x traffic spikes. Main API response time for the webhook endpoint dropped to a flat, predictable 15ms. The system no longer crashes if a downstream service decides to be temporarily slow.",
+    "note": "Hope is not a scaling strategy. If you don't control the volume of inbound traffic, you must control how fast you process it. Message queues aren't just for background jobs; they are literal shock absorbers for your entire infrastructure."
+  }
+]

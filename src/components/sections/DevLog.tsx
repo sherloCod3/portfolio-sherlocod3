@@ -6,6 +6,8 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { defaultViewport } from "@/lib/motion";
 
+import logsData from "../../../public/devlog.json";
+
 type LogTag = "SQL" | "Async" | "Frontend" | "Infra";
 
 interface LogEntry {
@@ -19,33 +21,7 @@ interface LogEntry {
   note: string;
 }
 
-const logs: LogEntry[] = [
-  {
-    id: "log-reports",
-    date: "2024-10-12",
-    tag: "SQL",
-    context:
-      "Reports engine timing out on 5M+ row aggregations due to generic ORM queries.",
-    decision:
-      "Bypassed ORM for complex read queries. Implemented raw CTEs and materialized views for common date ranges.",
-    why: "ORMs optimize for writes and simple relations, not analytical aggregations. The abstraction leaked performance.",
-    impact: "P99 latency dropped from 8.4s to 1.2s.",
-    note: "Abstractions are nice until they cost you users. Know when to drop down.",
-  },
-  {
-    id: "log-async",
-    date: "2024-08-03",
-    tag: "Async",
-    context:
-      "Synchronous webhook processing failing under burst loads, losing critical external syncs.",
-    decision:
-      "Offloaded all webhook processing to Redis-backed BullMQ queues with exponential backoff.",
-    why: "Immediate consistency was not required. Eventual consistency under controlled throughput guarantees zero loss.",
-    impact:
-      "0 dropped webhooks over the last 90 days. Peak burst handling improved 10x.",
-    note: "Queues are not about speed. They are about control. Blocking is easy. Scaling is deliberate.",
-  },
-];
+const logs: LogEntry[] = logsData as LogEntry[];
 
 const TAG_FILTERS = ["All", "SQL", "Async", "Frontend", "Infra"] as const;
 type TagFilter = (typeof TAG_FILTERS)[number];

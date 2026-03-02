@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "devlog": "node scripts/generate-devlog.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -18,12 +19,17 @@
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
+    "@google/genai": "^1.43.0",
+    "@octokit/rest": "^22.0.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.3.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "gitlog": "^5.1.0",
+    "simple-git": "^3.32.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
