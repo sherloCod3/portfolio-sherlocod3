@@ -7,7 +7,7 @@ import { useState } from "react";
 import { CodeSnippet } from "@/components/ui/CodeSnippet";
 import { fadeUp, defaultViewport } from "@/lib/motion";
 
-type SystemType = "Backend" | "Full Stack" | "Frontend";
+type SystemType = "Backend" | "Full Stack" | "Frontend" | "Data / Desktop";
 
 interface SystemDossier {
   id: string;
@@ -25,86 +25,138 @@ interface SystemDossier {
 const systems: SystemDossier[] = [
   {
     id: "sys-01",
-    title: "Reports Engine Refactor",
-    role: "Backend Architect",
-    type: "Backend",
-    tags: ["SQL Optimization", "Caching", "PostgreSQL"],
-    impact: "8s → 1.2s",
-    oneLiner: "Bypassed ORM latency on 5M+ row analytical aggregations.",
+    title: "Reporting Platform Prototype",
+    role: "Full Stack Developer",
+    type: "Full Stack",
+    tags: ["Node.js", "TypeScript", "React", "Puppeteer"],
+    impact: "Self-hosted Prototype",
+    oneLiner: "A secure SQL execution and PDF generation reporting engine.",
     challenge:
-      "The standard ORM abstracted away the complexity of the data, resulting in massive N+1 issues and inefficient grouping queries during high-load reporting hours.",
+      "Enterprise reporting requires a secure environment for SQL execution, robust query validation, and reliable generation of PDF exports without overwhelming the server.",
     solution:
-      "Rewrote the critical read-path using raw SQL CTEs and implemented parameterized materialized views to serve pre-computed aggregates to the frontend instantly.",
-    codeSnippet: `WITH aggregated_sales AS (
-  SELECT 
-    date_trunc('day', created_at) as day,
-    SUM(amount) as total
-  FROM transactions
-  WHERE status = 'settled'
-  GROUP BY 1
-)
-SELECT * FROM aggregated_sales
-WHERE total > 10000;
--- Execution time dropped 85%`,
+      "Built an AST-based SQL parser for deep query validation, and orchestrated a Puppeteer browser pool to handle PDF exports in background workers.",
+    codeSnippet: `const parsed = parseSql(query);
+if (!isSelect(parsed) || hasForbiddenKeywords(parsed)) {
+  throw new ValidationError("Only SELECT queries allowed.");
+}
+const result = await db.query(query);
+const pdfBuffer = await pdfPool.renderToStream(result);`,
   },
   {
     id: "sys-02",
-    title: "Async Processing Pipeline",
-    role: "Full Stack Engineer",
-    type: "Full Stack",
-    tags: ["Node.js", "BullMQ", "Redis", "React"],
-    impact: "2d → 30m processing",
+    title: "Plataforma de Conexão Social",
+    role: "Frontend Developer",
+    type: "Frontend",
+    tags: ["React.js", "SCSS", "Responsive Design"],
+    impact: "Modern UX Accessibility",
     oneLiner:
-      "Architected a distributed queue to handle high-throughput webhook synchronization.",
+      "Custom responsive platform bridging volunteers to social initiatives.",
     challenge:
-      "The legacy synchronous system was dropping webhooks during peak bursts, and users lacked visibility into the status of their batch imports on the dashboard.",
+      "A platform to give visibility to social projects required a modern, accessible interface without utilizing any existing UI framework libraries (e.g. Tailwind, Bootstrap).",
     solution:
-      "Offloaded I/O to a Redis-backed BullMQ cluster with exponential backoffs. Built a React-based realtime dashboard via WebSockets so users could monitor batch progress line-by-line.",
-    codeSnippet: `// Worker Configuration
-const importWorker = new Worker('BatchImports', async job => {
-  const { batchId, data } = job.data;
-  await processBatchInChunks(data);
-  await notifyDashboardViaSocket(batchId, 'completed');
-}, { 
-  connection: redisConfig,
-  concurrency: 50 
-});`,
+      "Developed a fully responsive layout from scratch using modular SCSS and React components, maintaining strict visual hierarchy and accessibility standards.",
+    codeSnippet: `@mixin responsive-layout($breakpoint) {
+  @media (max-width: $breakpoint) {
+    flex-direction: column;
+    padding: map-get($spacing, 'mobile');
+  }
+}
+
+.card-projeto {
+  @include responsive-layout($tablet);
+  transition: transform 0.3s ease;
+}`,
   },
   {
     id: "sys-03",
-    title: "Financial Dashboard UI",
-    role: "Frontend Engineer",
-    type: "Frontend",
-    tags: ["Next.js", "Tailwind", "Framer Motion"],
-    impact: "100% Lighthouse",
+    title: "Excel Editor GUI",
+    role: "Python Developer",
+    type: "Data / Desktop",
+    tags: ["Python", "Pandas", "Tkinter", "ETL"],
+    impact: "No-code Data Transforms",
     oneLiner:
-      "Developed a buttery-smooth client interface for complex financial telemetry.",
+      "A desktop GUI exposing Pandas functionality to non-technical users.",
     challenge:
-      "Rendering thousands of dynamic data points on a single view without dropping frame rates or overwhelming the user cognitively.",
+      "Non-technical users struggled with complex Excel formulas for data transformation tasks like pivots, merges, data cleaning, and dataset consolidations.",
     solution:
-      "Used virtualization for long lists and CSS-transform based animations (avoiding layout shifts) to guarantee 60fps scrolling while keeping the bundle size microscopic.",
-    codeSnippet: `<VirtualList
-  width={800}
-  height={600}
-  itemCount={10000}
-  itemSize={35}
-  renderItem={({ index, style }) => (
-    <TransactionRow 
-      data={transactions[index]} 
-      style={style} 
-    />
-  )}
-/>`,
+      "Created a desktop GUI mapping powerful Pandas dataframe operations to intuitive visual controls, enabling complex ETL operations with just a few clicks.",
+    codeSnippet: `def execute_merge(self, df1, df2, how='inner', on_col='ID'):
+    """
+    Pandas backend exposed via Tkinter UI for non-devs.
+    """
+    merged = pd.merge(df1, df2, how=how, on=on_col)
+    
+    # Safely update the pandastable view
+    self.data_view.update_table(merged)
+    return merged`,
+  },
+  {
+    id: "sys-04",
+    title: "Health Data Analytics",
+    role: "Backend Engineer",
+    type: "Backend",
+    tags: ["Java", "Spring Boot", "PostgreSQL", "ETL"],
+    impact: "303k → 792 records",
+    oneLiner:
+      "ETL pipeline and REST API for processing health operator expenses.",
+    challenge:
+      "Processing and validating a massive dataset of public National Agency for Supplementary Health (ANS) data required heavy processing and data normalization.",
+    solution:
+      "Implemented a high-performance ETL pipeline in Java, processing CSVs efficiently with stream reduction, logging pipeline stages, and strict CNPJ validation.",
+    codeSnippet: `public void processQuarterlyData(MultipartFile file) {
+    try (BufferedReader reader = new BufferedReader(
+            new InputStreamReader(file.getInputStream()))) {
+            
+        List<OperatorData> batch = csvParser.parse(reader)
+            .filter(record -> cnpjValidator.isValid(record.getCnpj()))
+            .map(enricherService::enrich)
+            .collect(Collectors.toList());
+            
+        repository.saveAll(batch);
+    }
+}`,
+  },
+  {
+    id: "sys-05",
+    title: "Sistema de Inventário - UPA",
+    role: "Full Stack Developer",
+    type: "Full Stack",
+    tags: ["React", "Express", "MongoDB", "JWT"],
+    impact: "Efficient tracking",
+    oneLiner: "End-to-end inventory management software for patrimonial goods.",
+    challenge:
+      "Managing medical supplies and patrimonial goods required a more robust, scalable, and secure tracking software, including data exports and report generation.",
+    solution:
+      "Developed a full-stack inventory manager featuring advanced paginated views, JWT security, custom alphanumeric code generation, and direct CSV exporting.",
+    codeSnippet: `app.get('/api/inventory', verifyJWT, async (req, res) => {
+  const { page, category, format } = req.query;
+  const items = await InventoryModel.find({ category })
+    .skip((page - 1) * limit)
+    .limit(limit);
+    
+  if (format === 'csv') {
+    return exportToCsvHandler(items, res);
+  }
+  
+  res.json({ data: items, total: await InventoryModel.countDocuments() });
+});`,
   },
 ];
 
-const TYPE_FILTERS = ["All", "Backend", "Full Stack", "Frontend"] as const;
+const TYPE_FILTERS = [
+  "All",
+  "Backend",
+  "Full Stack",
+  "Frontend",
+  "Data / Desktop",
+] as const;
 type Filter = (typeof TYPE_FILTERS)[number];
 
 const typeBadgeClass: Record<SystemType, string> = {
   Backend: "border-brand-highlight/50 text-brand-highlight",
   "Full Stack": "border-teal-400/50 text-teal-400",
   Frontend: "border-emerald-400/50 text-emerald-400",
+  "Data / Desktop": "border-amber-400/50 text-amber-400",
 };
 
 export function SelectedSystems() {
@@ -223,7 +275,7 @@ export function SelectedSystems() {
                       </div>
                     </div>
 
-                    <div className="md:w-48 shrink-0 flex md:flex-col justify-between w-full md:w-auto items-center md:items-end gap-4">
+                    <div className="md:w-48 shrink-0 flex md:flex-col justify-between w-full items-center md:items-end gap-4">
                       <div className="text-right">
                         <span className="block text-brand-text/50 font-mono text-xs uppercase mb-1">
                           Impact
