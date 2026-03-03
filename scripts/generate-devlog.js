@@ -65,7 +65,7 @@ async function getState() {
   try {
     const data = await fs.readFile(STATE_FILE, "utf-8");
     return JSON.parse(data);
-  } catch (err) {
+  } catch {
     return { lastRunDate: null };
   }
 }
@@ -215,7 +215,7 @@ ${commitText}`;
     try {
       const fileRaw = await fs.readFile(LOG_FILE, "utf-8");
       existingLogs = JSON.parse(fileRaw);
-    } catch (e) {
+    } catch {
       console.log("No existing devlog.json found, starting fresh.");
     }
 
